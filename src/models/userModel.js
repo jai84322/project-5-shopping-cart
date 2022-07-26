@@ -5,16 +5,19 @@ const userSchema = new mongoose.Schema({
     fname: {
         type: String,
         required: true,
+        trim:true
     },
     lname: {
         type: String,
         required: true,
+        trim:true
     },
     email: {
         type: String,
         required: true,
         unique: true,
-        lowercase:true
+        lowercase:true,
+        trim:true
     },
     profileImage: {
         type: String,
@@ -31,32 +34,15 @@ const userSchema = new mongoose.Schema({
     },
     address: {
         shipping: {
-            street: {
-                type: String,
-                required: true
-            },
-            city: {
-                type: String,
-                required: true
-            },
-            pincode: {
-                type: Number,
-                required: true
-            }
+            street: { type: String, required: true,trim:true },
+            city: { type: String, required: true ,trim:true},
+            pincode: { type: Number, required: true }
         },
+
         billing: {
-            street: {
-                type: String,
-                required: true
-            },
-            city: {
-                type: String,
-                required: true
-            },
-            pincode: {
-                type: Number,
-                required: true
-            }
+            street: { type: String, required: true,trim:true},
+            city: { type: String, required: true ,trim:true},
+            pincode: { type: Number, required: true }
         }
     }
 
