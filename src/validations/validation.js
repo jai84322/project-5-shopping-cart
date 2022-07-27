@@ -70,6 +70,12 @@ let validateEmail = (email) => {
 };
 
 
+//=================================================================== product validations ===================================
+
+let IsNumuric = function (input) {
+	var RE = /^-{0,1}\d*\.{0,1}\d+$/;
+	return (RE.test(input));
+}
 
 
-module.exports={isBodyEmpty,isValidS3Url, isValid, isValidMobileNo, isVerifyString,isValidPincode,isValidJSONstr,acceptFileType,isEmpty,validateEmail}
+module.exports={isBodyEmpty,isValidS3Url, isValid, isValidMobileNo, isVerifyString,isValidPincode,isValidJSONstr,acceptFileType,isEmpty,validateEmail,IsNumuric}

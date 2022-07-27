@@ -27,36 +27,27 @@ const { isValidObjectId } = require("../validations/userValidation")
 // };
 
 const authentication = async function (req, res, next) {
-    try{
-      console.log("1")
-        // let token = req.headers['Authoriztion']
-        // let token = req.headers.Authentication
-        let token = req.rawHeaders[1].split(" ")[1]
-        if (!token) return res.status(401).send({ status: false, message: "token is missing" })
+  try{
 
-        
-        console.log("2")
-        // if (!token) return res.status(400).send({ status: false, msg: "Token must be present" });
+      let token = req.headers.authorization;
+      console.log(req.headers)
+      if (!token) {return res.status(400).send({status:false, message:"token is missing"})}
 
-        let splitToken = token.split(" ")
-        console.log(splitToken[0])
-        console.log(splitToken[1])
-        let decodedToken = jwt.decode(splitToken[0],"s-cart49")
-        if(!decodedToken) return res.status(401).send({ status: false, msg: "Invalid token" });
-        console.log(decodedToken)
-        console.log("dd")
-        let tokenValidate = jwt.verify(splitToken[0], "s-cart49")
-        if(!tokenValidate) return res.status(401).send({ status: false, msg: "Invalid Authentication" });
-        
-        // req.headers["userId"] = decodedToken.id
-        req["decodedToken"] = decodedToken.id
-       
-        next()
+      let splitToken = token.split(" ")
+      token = splitToken[1]
+    
+    jwt.verify(token,"s-cart49",(error,token)=>{
+     
+      if(error) return  res.status(401).send({status:false, message:error.message});
+      req["decodedToken"] = token.id;
+      next();
+   });
 
-    } catch (err) {
-        return res.status(500).send({ status: false, msg: err.message });
-      }
+  } catch (err) {
+    res.status(500).send({status:false, message:err.message})
+    }
 }
+
 
 const authorization = async function (req,res,next) {
   let userId = req.params.userId

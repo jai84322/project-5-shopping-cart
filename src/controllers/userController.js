@@ -16,9 +16,11 @@ let register = async function (req, res) {
 
     try {
         // let data = req.body;
-        // console.log(req.body);
+        // console.log(req.body)
+       
         let data = JSON.parse(JSON.stringify(req.body))
 
+      
         if (isBodyEmpty(data)) return res.send({ status: false, message: "Please provide required data" });
         const { fname, lname, email, phone, password, address } = data
         // console.log(address)
@@ -36,16 +38,12 @@ let register = async function (req, res) {
         if (!isValidMobileNo(phone)) return res.status(400).send({ status: false, message: "Please provide valid Mobile Number" })
 
         if (!isValid(password)) return res.status(400).send({ status: false, message: "password field is required" })
-        // if (password.length < 8) {
-        //     return res.status(400).send({ status: false, message: "password is too short , passsword should be -> minLen 8, maxLen 15" })
-        // }
-        // if (password.length > 15) {
-        //     return res.status(400).send({ status: false, message: "password is too long,  passsword should be -> minLen 8, maxLen 15" })
-        // }
+
 
         if(!isValidPassword(password)) return res.status(400).send({status:false, message: "please enter valid password, one uppercase, one lowercase, one digit, one special character"})
 
         if(address=='null' || address=='undefined') return res.status(400).send({status:false, message:"Please provide address"});
+        // address =JSON.parse(address);
      
         if(typeof address !== "object") return res.status(400).send({status:false, message:"Please provide valid address"});
         
@@ -100,7 +98,10 @@ let register = async function (req, res) {
 
 
     } catch (error) {
+        console.log(error)
+        console.log(error.message)
         res.status(500).send({ status: false, message: error })
+        
     }
 }
 
@@ -129,7 +130,9 @@ const loginUser = async function (req, res) {
         if (!User)
          return res.status(400).send({ status: false, message: "user not found" }) 
 
-        let decrypt = bcrypt.compare(password, User.password) 
+        
+        let decrypt = await bcrypt.compare(password, User.password) 
+       
             if (!decrypt) {
                 return res.status(401).send({ status: false, msg: "invalid password" })}
 
@@ -137,7 +140,7 @@ const loginUser = async function (req, res) {
                     {
                         id: User._id.toString(),
                     },
-                    "s-cart49", { expiresIn: "3h" })
+                    "s-cart49", { expiresIn: "10h" })
 
                 res.setHeader("Authorization", key)
             
@@ -159,14 +162,13 @@ const getUserProf = async function (req, res) {
     try {
 
         const userId = req.params.userId
-        console.log(userId)
         if (!isValidObjectId(userId)) 
             return res.status(400).send({ status: false, message: "User Id is not valid" });
 
             const profDetails = await userModel.findById({ _id : userId })
             if (!profDetails)
                { return res.status(404).send({ status: false, message: "User Id does not exist" }) }
-            // console.log(req.headers["userId"])
+            // console.log(req["decodedToken"])
             // if (req.headers["userId"] !== userId)
             if (req["decodedToken"] !== userId)
             return res.status(403).send({ status: false, msg: "User Id is not correct" })
@@ -274,7 +276,10 @@ const updateUser = async function (req, res) {
 
 
     if (address) {
-        let address1 = JSON.parse(address)
+        console.log(address)
+        // let address1 = JSON.parse(address)
+        let address1 = address
+        
 
         let findAddress = await userModel.findOne({ _id: userId })
 
@@ -337,7 +342,7 @@ const updateUser = async function (req, res) {
         obj.address = findAddress.address
     }
 
-    let updatedUser = await userModel.findOneAndUpdate({ userId: userId }, obj, { new: true })
+    let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, obj, { new: true })
     return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
 }
 
