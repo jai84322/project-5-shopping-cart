@@ -128,13 +128,13 @@ const loginUser = async function (req, res) {
         let User = await userModel.findOne({ email: email })
         
         if (!User)
-         return res.status(400).send({ status: false, message: "user not found" }) 
+         return res.status(400).send({ status: false, message: "Invalid credentials" }) 
 
         
         let decrypt = await bcrypt.compare(password, User.password) 
        
             if (!decrypt) {
-                return res.status(401).send({ status: false, msg: "invalid password" })}
+                return res.status(401).send({ status: false, msg: "Invalid credentials" })}
 
                 let key = jwt.sign(
                     {
@@ -277,8 +277,8 @@ const updateUser = async function (req, res) {
 
     if (address) {
         console.log(address)
-        // let address1 = JSON.parse(address)
-        let address1 = address
+        let address1 = JSON.parse(address)
+        // let address1 = address
         
 
         let findAddress = await userModel.findOne({ _id: userId })
