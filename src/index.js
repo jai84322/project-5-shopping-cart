@@ -6,6 +6,8 @@ const aws= require('aws-sdk');
 
 const app  = express();
 
+
+// raw data -->body
 app.use(express.json())
 
 app.use( multer().any())

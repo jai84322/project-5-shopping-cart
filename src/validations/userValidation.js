@@ -55,7 +55,10 @@ function isValidPincode(x){
     return regEx.test(x);
 }
 
+const isValidSize = (Size) => {
+    let correctSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+    return (correctSize.includes(Size))
+  }
 
 
-
-module.exports = {isValidRequest, isValidAddress, isValidFile, isValidObjectId, isValidPhone, isValidPassword, isValidString, isValidEmail, isValidPincode, removeSpaces}
+module.exports = {isValidRequest, isValidAddress, isValidSize, isValidFile, isValidObjectId, isValidPhone, isValidPassword, isValidString, isValidEmail, isValidPincode, removeSpaces}

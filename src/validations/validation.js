@@ -45,6 +45,7 @@ const isValidS3Url = function(url)
 
 
 const acceptFileType = (file, ...types) => {
+    console.log(file.mimetype);
     return types.indexOf(file.mimetype) !== -1 ? true : false
 }
 
@@ -65,6 +66,12 @@ let isValidJSONstr = (json) => {
 }
 
 
+
+function removeSpaces(x){
+    return x.split(" ").filter((y)=> y ).join(" ")
+}
+
+
 let validateEmail = (email) => {
     return String(email).toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
 };
@@ -78,4 +85,26 @@ let IsNumuric = function (input) {
 }
 
 
-module.exports={isBodyEmpty,isValidS3Url, isValid, isValidMobileNo, isVerifyString,isValidPincode,isValidJSONstr,acceptFileType,isEmpty,validateEmail,IsNumuric}
+let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"];
+let checkAllSizes = async function (allSizes){
+    for(let i=0;i<allSizes.length;i++){
+        allSizes[i]=allSizes[i].trim();
+      if(!arr.includes(allSizes[i])) return false
+    }
+    return true;
+   }
+
+
+
+   let checkAllSizesForUpdate = async function (allSizes,available){
+    for(let i=0;i<allSizes.length;i++){
+        allSizes[i]=allSizes[i].trim();
+      if(!arr.includes(allSizes[i])) return false
+      if(available.includes(allSizes[i])) return false
+    }
+    return true;
+   }
+
+
+
+module.exports={isBodyEmpty,isValidS3Url,checkAllSizes,checkAllSizesForUpdate,removeSpaces, isValid, isValidMobileNo, isVerifyString,isValidPincode,isValidJSONstr,acceptFileType,isEmpty,validateEmail,IsNumuric}

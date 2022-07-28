@@ -15,10 +15,10 @@ const {isValidRequest, isValidAddress, isValidFile, isValidObjectId, isValidPhon
 let register = async function (req, res) {
 
     try {
-        // let data = req.body;
+        let data = req.body;
         // console.log(req.body)
        
-        let data = JSON.parse(JSON.stringify(req.body))
+        // let data = JSON.parse(JSON.)
 
       
         if (isBodyEmpty(data)) return res.send({ status: false, message: "Please provide required data" });
@@ -42,35 +42,39 @@ let register = async function (req, res) {
 
         if(!isValidPassword(password)) return res.status(400).send({status:false, message: "please enter valid password, one uppercase, one lowercase, one digit, one special character"})
 
-        if(address=='null' || address=='undefined') return res.status(400).send({status:false, message:"Please provide address"});
-        // address =JSON.parse(address);
-     
-        if(typeof address !== "object") return res.status(400).send({status:false, message:"Please provide valid address"});
-        
-        let {shipping,billing} = address
 
-        // if(shipping=='null' || shipping=='undefined' || shipping.trim().length==0) return res.send({status:false, message:"shipping tag is not present"})
-        if(typeof shipping !== "object") return res.send({status:false, message:"please provide a valid shipping object"})
+        let parseAddress = JSON.parse(address)
+        if(parseAddress){
+            if(parseAddress.shipping != undefined){
+                if(!isValid(parseAddress.shipping.street)) return  res.status(400).send({status:false,message:"street tag is required"})
+                if(!isValid(parseAddress.shipping.city)) return  res.status(400).send({status:false,message:"city tag is required"})
+                if(isVerifyString(parseAddress.shipping.city)) return res.status(400).send({status:false,message:"Please provide a valid city name"})
+               
+                if(!isValid(parseAddress.shipping.pincode)) return res.status(400).send({status:false,message:"pincode tag is required"})
+                
+                if(!isValidPincode(parseAddress.shipping.pincode)) return res.status(400).send({status:false,message:"Please provide a valid pincode"})
+                    
+            }
+            else{
+                if(!isValid(parseAddress.shipping)) return  res.status(400).send({status:false,message:"Please provide shipping address"})  
+            }
+            if(parseAddress.billing != undefined){
+                if(!isValid(parseAddress.billing.street)) return  res.status(400).send({status:false,message:"street tag is required"})
 
-        // if(billing=='null' || billing=='undefined' || billing.trim().length==0) return res.send({status:false, message:"please provide a billing tag"})
-        if(typeof billing !== "object") return res.send({status:false, message:"please provide a valid billing object"})
+                if(!isValid(parseAddress.billing.street)) return  res.status(400).send({status:false,message:"street tag is required"})
+                if(!isValid(parseAddress.billing.city)) return  res.status(400).send({status:false,message:"city tag is required"})
+                if(isVerifyString(parseAddress.billing.city)) return res.status(400).send({status:false,message:"Please provide a valid city name"})
+                if(!isValid(parseAddress.billing.pincode)) return res.status(400).send({status:false,message:"pincode tag is required"})
+                if(!isValidPincode(parseAddress.billing.pincode)) return res.status(400).send({status:false,message:"Please provide a valid pincode"})
 
- 
-        if(!isValid(shipping.street)) return  res.status(400).send({status:false,message:"street tag is required"})
+            }
+            else{
+                if(!isValid(parseAddress.billing)) return  res.status(400).send({status:false,message:"Please provide billing address"})
+
+
+            }
+        }
    
-        if(!isValid(shipping.city)) return  res.status(400).send({status:false,message:"city tag is required"})
-        if(isVerifyString(shipping.city)) return res.status(400).send({status:false,message:"Please provide a valid city name"})
-        if(!isValid(shipping.pincode)) return res.status(400).sned({status:false,message:"pincode tag is required"})
-        if(!isValidPincode(shipping.pincode)) return res.status(400).send({status:false,message:"Please provide a valid pincode"})
-            
-
-
-        if(!isValid(billing.street)) return  res.status(400).send({status:false,message:"street tag is required"})
-        if(!isValid(billing.city)) return  res.status(400).send({status:false,message:"city tag is required"})
-        if(isVerifyString(billing.city)) return res.status(400).send({status:false,message:"Please provide a valid city name"})
-        if(!isValid(billing.pincode)) return res.status(400).sned({status:false,message:"pincode tag is required"})
-        if(!isValidPincode(billing.pincode)) return res.status(400).send({status:false,message:"Please provide a valid pincode"})
-            
 
         const isEmailExist = await userModel.findOne({ email: email })
         if (isEmailExist) return res.status(409).send({ status: false, message: "email is already exist" })
@@ -85,7 +89,7 @@ let register = async function (req, res) {
         // bcrpt logic implementation
         const encryptedPassword = await bcrypt.hash(password, saltRounds)
         console.log(encryptedPassword)
-        const userrequestBody = { fname, lname, email, phone, profileImage: profilePicture, password: encryptedPassword , address:address}
+        const userrequestBody = { fname, lname, email, phone, profileImage: profilePicture, password: encryptedPassword , address:parseAddress}
 
           const newUser = await userModel.create(userrequestBody);
 
@@ -100,7 +104,7 @@ let register = async function (req, res) {
     } catch (error) {
         console.log(error)
         console.log(error.message)
-        res.status(500).send({ status: false, message: error })
+        res.status(500).send({ status: false, message: error.message })
         
     }
 }
@@ -187,16 +191,14 @@ const getUserProf = async function (req, res) {
 // ====================================================== Update API ===========================================================
 
 const updateUser = async function (req, res) {
+    
     let { fname, lname, email, phone, password, address } = data = req.body
     let obj = {}
     let userId = req.params.userId
-    
-    console.log(req.files)
-    // console.log(fname);
-    // console.log(lname);
+ 
     let files = req.files
 
-    if (!isValidRequest(req.body) && req.files.length == 0) {
+    if (!isValidRequest(req.body) && files == undefined) {
         return res.status(400).send({ status: false, message: "please enter valid request" })
     }
 
