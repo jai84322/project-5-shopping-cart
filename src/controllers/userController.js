@@ -42,7 +42,17 @@ let register = async function (req, res) {
 
         if(!isValidPassword(password)) return res.status(400).send({status:false, message: "please enter valid password, one uppercase, one lowercase, one digit, one special character"})
 
-        let parseAddress = JSON.parse(address)
+        
+
+        let parseAddress=null;
+
+        try{
+         parseAddress = JSON.parse(address)
+        }catch(err){
+            res.status(400).send({status:false, message:"address is not in JSON or may be Pincode Invalid"})
+        }
+        
+
         console.log(parseAddress.shipping)
         if(parseAddress){
             if(parseAddress.shipping != undefined){
@@ -276,12 +286,16 @@ const updateUser = async function (req, res) {
 
     // check password with bcrypt 
 
-
+    let address1 = null;
     if (address) {
         console.log(address)
+        try{
+            address1 = JSON.parse(address)
+           }catch(err){
+               res.status(400).send({status:false, message:"address is not in JSON or may be Pincode Invalid"})
+         }
        
-       
-        let address1 = JSON.parse(address)
+         address1 = JSON.parse(address)
         // let address1 = address
         console.log(address1)
      
