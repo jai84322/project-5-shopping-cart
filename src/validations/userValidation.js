@@ -50,7 +50,6 @@ function isValidAddress(x){
 }
 
 function isValidPincode(x){
-    if(typeof x !== "string") return false;
     const regEx = /^\s*[123456789][0-9]{5}\s*$/
     return regEx.test(x);
 }

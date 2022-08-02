@@ -13,7 +13,8 @@ const { uploadFile } = require('./aws-work');
 let createProduct = async function(req,res){
 
     try{
-    let data = JSON.parse(JSON.stringify(req.body));
+    // let data = JSON.parse(JSON.stringify(req.body));
+    let data = req.body
 
     // check body is empty or not
     if(isBodyEmpty(data)) return res.status(400).send({status:false, message:"Please provide required Data"}) 
@@ -106,7 +107,10 @@ let createProduct = async function(req,res){
 
 
 
-// get Quer
+// ===============================================================================================================================================
+//                                                            ⬇️  GET API ⬇️
+//================================================================================================================================================
+
 
 const getProduct = async function (req, res) {
     let { name, size, priceGreaterThan, priceLessThan, priceSort } = req.query
@@ -121,6 +125,7 @@ const getProduct = async function (req, res) {
 
     if (size) {
         let size1 = size.split(",").map(x => x.trim().toUpperCase())
+        //-----------------------------------explain
         if (size1.map(x => isValidSize(x)).filter(x => x === false).length !== 0) return res.status(400).send({ status: false, message: "Size Should be among  S,XS,M,X,L,XXL,XL" })
         filters.availableSizes = { $in: size1 }
     }
@@ -136,6 +141,10 @@ const getProduct = async function (req, res) {
     if (priceGreaterThan && priceLessThan) {
         filters.price = { $gt: priceGreaterThan, $lt: priceLessThan }
     }
+    if (priceSort) {
+        if (priceSort !=  (1 || -1)) {return res.status(400).send({status: false, message : "priceSort value can only be 1 or -1"})}
+    }
+
 
     let getData = await productModel.find(filters).sort({ price: priceSort })
 
@@ -147,7 +156,10 @@ const getProduct = async function (req, res) {
 
 
 
-// ==================================================== GET API =========================================================================
+// ===============================================================================================================================================
+//                                                            ⬇️  GET BY ID API ⬇️
+//================================================================================================================================================
+
 
 
 const getProductById = async function (req, res) {
@@ -157,13 +169,11 @@ const getProductById = async function (req, res) {
         if (!isValidObjectId(productId)) 
             return res.status(400).send({ status: false, message: "Product Id is not valid" });
 
-            const prodDetails = await productModel.findById({ _id : productId })
-            if (!prodDetails)
-               { return res.status(404).send({ status: false, message: "Product Id does not exist" }) }
-    
-       return res.status(200).send({status: true, message: "Success", data : prodDetails })
-
-    }
+            const prodDetails = await productModel.findById({ _id : productId , isDeleted:false})
+            if (!prodDetails)return res.status(404).send({ status: false, message: "Product Id does not exist" })
+            
+            res.status(200).send({status: true, message: "Success", data : prodDetails })
+         }
     catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
 
@@ -269,7 +279,6 @@ let updateProduct = async function(req,res){
 
        
         if(files && files.length>0){
-            if(files.length==0) return res.status(400).send({ status: !true, message: "productImage is required" });
             if(!acceptFileType(files[0],'image/jpeg', 'image/png'))  return res.status(400).send({ status: false, message: "we accept jpg, jpeg or png as product image only" })
             
             // console.log(await uploadFile(files[0]))
@@ -291,7 +300,10 @@ let updateProduct = async function(req,res){
 
 
 
-// DELETE
+// ===============================================================================================================================================
+//                                                            ⬇️  DELETE API ⬇️
+//================================================================================================================================================
+
 
 const deleteProductById = async function (req, res) {
     try {
@@ -302,15 +314,11 @@ const deleteProductById = async function (req, res) {
             })
         }
 
-        const product = await productModel.findById(id);
-         if (!product)
-         { return res.status(404).send({ status: false, message: "no such product exists" }) }
-
-         if (product.isDeleted === true)
-         { return res.status(400).send({ status: false, message: "product already deleted" }) }
-        //const date = new Date; 
-        
-        let delProduct= await productModel.findByIdAndUpdate(id, { $set: { isDeleted: true, deletedAt: Date.now() } },{new:true});
+        const product = await productModel.findOne({_id:id, isDeleted:false});
+         if (!product) return res.status(404).send({ status: false, message: "no such product exists" })  
+ 
+         
+        await productModel.findByIdAndUpdate(id, { $set: { isDeleted: true, deletedAt: Date.now()}});
         return res.status(200).send({ status: true, message: "deleted successfully"});
 
     } catch (error) {

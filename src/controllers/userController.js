@@ -42,8 +42,8 @@ let register = async function (req, res) {
 
         if(!isValidPassword(password)) return res.status(400).send({status:false, message: "please enter valid password, one uppercase, one lowercase, one digit, one special character"})
 
-
         let parseAddress = JSON.parse(address)
+        console.log(parseAddress.shipping)
         if(parseAddress){
             if(parseAddress.shipping != undefined){
                 if(!isValid(parseAddress.shipping.street)) return  res.status(400).send({status:false,message:"street tag is required"})
@@ -279,9 +279,12 @@ const updateUser = async function (req, res) {
 
     if (address) {
         console.log(address)
+       
+       
         let address1 = JSON.parse(address)
         // let address1 = address
-        
+        console.log(address1)
+     
 
         let findAddress = await userModel.findOne({ _id: userId })
 
@@ -305,6 +308,7 @@ const updateUser = async function (req, res) {
             }
 
             if (pincode) {
+              
                 if (!isValidPincode(pincode)) {
                     return res.status(400).send({ status: false, message: "please enter valid shipping pincode input" })
                 } else {
@@ -333,6 +337,7 @@ const updateUser = async function (req, res) {
             }
 
             if (pincode) {
+              
                 if (!isValidPincode(pincode)) {
                     return res.status(400).send({ status: false, message: "please enter valid billing pincode input" })
                 } else {
