@@ -1,5 +1,5 @@
 const {isBodyEmpty,isValidS3Url,checkAllSizes,checkAllSizesForUpdate,removeSpaces, isValid, isValidMobileNo, isVerifyString,isValidPincode,isValidJSONstr,acceptFileType,isEmpty,validateEmail,IsNumuric} = require('../validations/validation')
-
+const {isValidRequest, isValidStatus,isValidAddress, isValidSize, isValidFile, isValidObjectId, isValidPhone, isValidPassword, isValidString, isValidEmail, isValidPincode, removeSpaces} = require('../validations/userValidation')
 const userModel = require('../models/userModel');
 const cartModel = require('../models/cartModel');
 const { isValidObjectId } = require('mongoose');
@@ -51,7 +51,38 @@ let createOrder = async function(req,res){
     }
 }
 
-module.exports = {createOrder}
+
+
+const updateOrder = async function (req,res) {
+    let {orderId, status} = req.body
+    let userId = req.params.userId
+
+
+    if (!isValidObjectId(userId)) return res.status(400).send({ status: false, message: "invalid user Id.." })
+    if (!await userModel.findById({ _id: userId })) return res.status(404).send({ status: false, message: "user not found" })
+
+    if (!orderId) return res.status(400).send({ status: false, message: "Provide orderId " })
+    if (!isValidObjectId(orderId)) return res.status(400).send({ status: false, message: "invalid order Id.." })
+
+
+    let searchOrder = await orderModel.findById(orderId)
+    if (!searchOrder) return res.status(404).send({ status: false, message: "order not found" })
+    if (searchOrder.userId != userId) return res.status(400).send({ status: false, message: "the order does not belongs to this user" })
+
+    if (!status) return res.status(400).send({ status: false, message: "Provide Order Status" })
+    if (!isValidStatus(status)) return res.status(400).send({ status: false, message: "status should be among 'pending','completed' and 'cancled' only" })
+
+    if (status == 'cancled' && searchOrder.cancellable !== true) return res.status(400).send({ status: false, message: "You can not cancel the order" })
+
+    let updatedOrder = await orderModel.findOneAndUpdate({ _id: orderId }, { status: status }, { new: true })
+    return res.status(200).send({ status: true, message: "Order status updated successfully", data: updatedOrder })
+
+    
+}
+
+
+
+module.exports = {createOrder,updateOrder}
 
 
 

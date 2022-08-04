@@ -8,10 +8,6 @@ const cartModel = require('../models/cartModel')
 //                                                            ⬇️  CREATE CART API ⬇️
 //================================================================================================================================================
 
-// const cartModel = require("../models/cartModel")
-// const productModel = require("../models/productModel")
-// const userModel = require("../models/userModel")
-// const { isValidObjectId } = require('../validations/userValidation')
 
 const createCart = async function (req, res) {
   try{
@@ -86,7 +82,7 @@ let updateCart = async function(req,res){
     if(!isValidObjectId(userId)) return res.status(400).send({status:false, message:"Please Provide a valid Object Id "})
 
     // check userId exist or not in db....
-    const isUserIdExist = await userModel.findOne({_id:userId, isDeleted:false});
+    const isUserIdExist = await userModel.findOne({_id:userId});
 
     // If userId is not Exists
     if(!isUserIdExist) return res.status(400).send({status:false, message:`${userId} userId is not Exists`});
@@ -108,7 +104,7 @@ let updateCart = async function(req,res){
     if(!isValidObjectId(cartId)) return res.status(400).send({status:false, message:"Invalid cartId"})
     
     // check cartId exists or not in db
-    const isCartIdExist = await cartModel.findOne({_id:cartId, isDeleted:false});
+    const isCartIdExist = await cartModel.findOne({_id:cartId});
     console.log(isCartIdExist)
     console.log("==========================================================  above isCard and bottom myArr")
 
@@ -147,11 +143,7 @@ let updateCart = async function(req,res){
 
     if(removeProduct == 0){
    
-
-
     let total = isCartIdExist.totalPrice - (isProductIdExist.price * isCartIdExist.items[index].quantity)
-    console.log(total)
-    
     isCartIdExist.totalPrice = Math.round(total * 100) / 100
     isCartIdExist.items.splice(index, 1) 
     isCartIdExist.totalItems = totalItems-1;
@@ -176,9 +168,8 @@ let updateCart = async function(req,res){
         console.log(isProductIdExist.price)
         isCartIdExist.items[index].quantity = allItems[index].quantity-1;
         isCartIdExist.totalPrice = Math.round(total * 100) / 100
-       
+        isCartIdExist.totalItems = isCartIdExist.items.length
       }
-      isCartIdExist.totalItems = isCartIdExist.items.length
     }
     await isCartIdExist.save()
     res.status(400).send({status:true, data:isCartIdExist})

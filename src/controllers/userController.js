@@ -40,16 +40,19 @@ let register = async function (req, res) {
         if (!isValid(password)) return res.status(400).send({ status: false, message: "password field is required" })
 
 
-        if(!isValidPassword(password)) return res.status(400).send({status:false, message: "please enter valid password, one uppercase, one lowercase, one digit, one special character"})
+        if(!isValidPassword(password)) return res.status(400).send({status:false, message: "please enter valid password length should be between 8-15, one uppercase, one lowercase, one digit, one special character"})
 
         
 
         let parseAddress=null;
 
+        if(!address || address == ''){
+            res.status(400).send({status:false, message:"Address is required"})
+        }
         try{
          parseAddress = JSON.parse(address)
         }catch(err){
-            res.status(400).send({status:false, message:"address is not in JSON or may be Pincode Invalid"})
+           return res.status(400).send({status:false, message:"address is not in JSON or may be Pincode Invalid"})
         }
         
 
@@ -93,6 +96,9 @@ let register = async function (req, res) {
 
         // files aws 
         let files = req.files;
+        if(files.length==0){
+           return  res.status(400).send({status:false, message:"profileImage is Required"})
+        }
         // if (!validation.acceptFileType(files[0], 'image/jpeg', 'image/png')) return res.status(400).send({ status: false, Message: "we accept jpg, jpeg or png as profile picture only" });
         let profilePicture = await aws.uploadFile(files[0])
 

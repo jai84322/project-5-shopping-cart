@@ -4,7 +4,7 @@ const { getUserProf,register,loginUser,updateUser} = require('../controllers/use
 const {createProduct,updateProduct,deleteProductById,getProduct,getProductById} = require('../controllers/productController')
 const {authentication, authorization} = require('../middleware/auth')
 const {updateCart,createCart,deleteCartbyId,getCartByUserId}= require('../controllers/cartController');
-const {createOrder } = require('../controllers/orderController');
+const {createOrder ,updateOrder} = require('../controllers/orderController');
 
 
 // user API's
@@ -29,7 +29,7 @@ router.delete('/users/:userId/cart',authentication,authorization,deleteCartbyId)
 
 // order API's
 router.post('/users/:userId/orders',authentication,authorization,createOrder)
-// router.put('/users/:userId/orders',authentication,authorization,updateOrder)
+router.put('/users/:userId/orders',authentication,authorization,updateOrder)
 
 
 

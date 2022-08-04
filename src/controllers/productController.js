@@ -66,7 +66,7 @@ let createProduct = async function(req,res){
 
 
 
-   if(!bool) return res.status(400).send({ status:false, Message: `availableSizes is accept like ["S", "XS", "M", "X", "L", "XXL", "XL"] !` })
+   if(!bool) return res.status(400).send({ status:false, Message: 'available size should be in uppercase and accepted sizes are: ["S", "XS", "M", "X", "L", "XXL", "XL"] !' })
 
    if(installments){
     if(!isValid(installments)) return res.status(400).send({status:false, message:"installments tag is required"}) 
@@ -142,7 +142,8 @@ const getProduct = async function (req, res) {
         filters.price = { $gt: priceGreaterThan, $lt: priceLessThan }
     }
     if (priceSort) {
-        if (priceSort !=  (1 || -1)) {return res.status(400).send({status: false, message : "priceSort value can only be 1 or -1"})}
+        let arr = ["1","-1"]
+        if (!arr.includes(priceSort)) {return res.status(400).send({status: false, message : "priceSort value can only be 1 or -1"})}
     }
 
 
@@ -169,7 +170,7 @@ const getProductById = async function (req, res) {
         if (!isValidObjectId(productId)) 
             return res.status(400).send({ status: false, message: "Product Id is not valid" });
 
-            const prodDetails = await productModel.findById({ _id : productId , isDeleted:false})
+            const prodDetails = await productModel.findOne({ _id : productId , isDeleted:false})
             if (!prodDetails)return res.status(404).send({ status: false, message: "Product Id does not exist" })
             
             res.status(200).send({status: true, message: "Success", data : prodDetails })
@@ -205,7 +206,7 @@ let updateProduct = async function(req,res){
         if (isBodyEmpty(req.body) && files == undefined) {
             return res.status(400).send({ status: false, message: "please provide some data for filteration" })
         }
-        let {title,description , price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments}= data;
+        let {title,description , price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments, isDeleted}= data;
     
         let filter ={}
       
@@ -277,6 +278,17 @@ let updateProduct = async function(req,res){
             filter.isFreeShipping = isFreeShipping 
         }
 
+        if(isDeleted=='') return res.status(400).send({status:false, message:"If 'isDeleted' key present then you have to send the value"})
+        
+        if (isDeleted) {
+            let bool = ["true","false"]
+            isDeleted = isDeleted.trim();
+            if(!bool.includes(isDeleted)) return res.status(400).send({status:false, message:"isDeleted contains only true or false"})
+            if (isDeleted == "true") {
+                filter.deletedAt = Date.now(),
+                filter.isDeleted = true
+            }
+        }
        
         if(files && files.length>0){
             if(!acceptFileType(files[0],'image/jpeg', 'image/png'))  return res.status(400).send({ status: false, message: "we accept jpg, jpeg or png as product image only" })

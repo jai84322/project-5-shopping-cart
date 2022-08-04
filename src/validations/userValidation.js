@@ -59,5 +59,9 @@ const isValidSize = (Size) => {
     return (correctSize.includes(Size))
   }
 
+  const isValidStatus = (status) => {
+    let correctStatus = ['pending', 'completed', 'cancled']
+    return (correctStatus.includes(status))
+}
 
-module.exports = {isValidRequest, isValidAddress, isValidSize, isValidFile, isValidObjectId, isValidPhone, isValidPassword, isValidString, isValidEmail, isValidPincode, removeSpaces}
+module.exports = {isValidRequest, isValidStatus,isValidAddress, isValidSize, isValidFile, isValidObjectId, isValidPhone, isValidPassword, isValidString, isValidEmail, isValidPincode, removeSpaces}
