@@ -340,7 +340,7 @@ const updateUser = async function (req, res) {
         if (address1.billing) {
             let { street, city, pincode } = address1.billing
             if (street) {
-                if (!isValidAddress(street)) {
+                if (!isValid(street)) {
                     return res.status(400).send({ status: false, message: "please enter valid billing street input" })
                 } else {
                     findAddress.address.billing.street = removeSpaces(street)
