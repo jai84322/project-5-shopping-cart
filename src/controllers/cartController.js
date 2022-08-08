@@ -33,6 +33,7 @@ const createCart = async function (req, res) {
       if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "please enter valid cartId id" })
       let cartCall = await cartModel.findOne({_id : cartId})
       if (!cartCall) return res.status(404).send({status: false, message : "cart not found"})
+      if (cartCall) {if (userId != cartCall.userId) {return res.status(400).send({status: false, message: "cartId doesnot belong to this user"})} }
     }
     let checkCart = await cartModel.findOne({ userId: userId })
     console.log(checkCart);
