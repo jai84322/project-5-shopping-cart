@@ -1,8 +1,9 @@
-const { isBodyEmpty, isValidS3Url, checkAllSizes, checkAllSizesForUpdate, isValid, isValidMobileNo, isVerifyString, isValidJSONstr, acceptFileType, isEmpty, validateEmail, IsNumuric } = require('../validations/validation')
-const { isValidRequest, isValidAddress, isValidSize, isValidFile, isValidObjectId, isValidPhone, isValidPassword, isValidString, isValidEmail, isValidPincode, removeSpaces } = require('../validations/userValidation')
+const {  isValid, IsNumuric } = require('../validations/validation')
+const {  isValidObjectId,  } = require('../validations/userValidation')
 const userModel = require('../models/userModel')
 const productModel = require('../models/productModel')
 const cartModel = require('../models/cartModel')
+const orderModel = require('../models/orderModel')
 
 // ===============================================================================================================================================
 //                                                            ⬇️  CREATE CART API ⬇️
@@ -30,6 +31,8 @@ const createCart = async function (req, res) {
 
     if (cartId) {
       if (!isValidObjectId(cartId)) return res.status(400).send({ status: false, message: "please enter valid cartId id" })
+      let cartCall = await cartModel.findOne({_id : cartId})
+      if (!cartCall) return res.status(404).send({status: false, message : "cart not found"})
     }
     let checkCart = await cartModel.findOne({ userId: userId })
     console.log(checkCart);
@@ -65,7 +68,7 @@ const createCart = async function (req, res) {
 
     let savedData = await cartModel.create(createCartObject)
 
-    return res.status(201).send({ status: false, data: savedData })
+    return res.status(201).send({ status: true,message: "Success", data: savedData })
   } catch (err) {
     res.status(500).send({ status: false, message: err.message })
   }
@@ -112,8 +115,6 @@ let updateCart = async function (req, res) {
 
     // check cartId exists or not in db
     const isCartIdExist = await cartModel.findOne({ _id: cartId });
-    console.log(isCartIdExist)
-    console.log("==========================================================  above isCard and bottom myArr")
 
     if (!isCartIdExist) return res.status(400).send({ status: false, message: `${cartId} cartId is not exists` })
 
@@ -136,15 +137,13 @@ let updateCart = async function (req, res) {
     console.log(totalPrice)
 
     let allItems = isCartIdExist.items;
-    // console.log(myArr)
-
 
     // here getting specific product ......
     let specificProductInItems = allItems.find(i => i.productId.toString() == productId);
-    console.log(specificProductInItems)
-    if (!specificProductInItems) return res.status(400).send({ status: false, message: "product doesn't exists" });
+  
+    if (!specificProductInItems) return res.status(404).send({ status: false, message: "product doesn't exists" });
     let index = allItems.indexOf(specificProductInItems);
-    console.log(index)
+  
 
 
 
@@ -179,7 +178,7 @@ let updateCart = async function (req, res) {
       }
     }
     await isCartIdExist.save()
-    res.status(400).send({ status: true, data: isCartIdExist })
+    res.status(200).send({ status: true,message: "Success", data: isCartIdExist })
 
   } catch (error) {
     res.status(500).send({ status: false, message: error.message })
@@ -233,7 +232,7 @@ const deleteCartbyId = async function (req, res) {
     }
     const findCart = await cartModel.findOne({ userId: user })
     if (findCart.totalPrice === 0 || findCart.totalItems === 0)
-      return res.status(400).send({ staus: false, message: "cart already deleted" })
+      return res.status(404).send({ staus: false, message: "cart already deleted" })
 
     if (!findCart) {
       return res.status(404).send({ staus: false, message: "cart doesn't exist" })

@@ -20,8 +20,3 @@ const cartSchema = new mongoose.Schema({
 module.exports = mongoose.model('cart', cartSchema)
 
 
-// token error http code
-// del mai data send krna hai
-// pincode 
-// avaiSize lowercase mai de to allow krna hai ya nhi
-// 

@@ -111,15 +111,14 @@ let register = async function (req, res) {
 
         res.status(201).send({
             status: true,
-            message: `User registered successfully`,
+            message: "User created successfully",
             data: newUser
         });
 
 
 
     } catch (error) {
-        console.log(error)
-        console.log(error.message)
+        
         res.status(500).send({ status: false, message: error.message })
         
     }
