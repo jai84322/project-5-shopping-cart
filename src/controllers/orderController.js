@@ -15,7 +15,7 @@ let createOrder = async function (req, res) {
         let isOrderExist = await orderModel.findOne({ userId: userId });
         console.log(isOrderExist)
         
-        if (isOrderExist){ if (isOrderExist.status == "pending") {return res.status(200).send({ status: true, message: "Order already exists with this userId ", data: isOrderExist })} }
+       
         let data = req.body;
         if (isBodyEmpty(data)) return res.status(400).send({ status: false, message: "body doesn't contains Mandatory data...." });
         let { cartId, cancellable } = data;
