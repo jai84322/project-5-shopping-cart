@@ -48,6 +48,7 @@ let createOrder = async function (req, res) {
         let realObject = { userId, items, totalPrice, totalItems, totalQuantity, cancellable };
 
         let ans = await orderModel.create(realObject);
+        await cartModel.findOneAndUpdate({ userId: userId }, { $set: { items: [], totalItems: 0, totalPrice: 0 } }, { new: true })
 
         res.status(201).send({ status: true, data: ans });
 
@@ -72,7 +73,7 @@ const updateOrder = async function (req, res) {
 
 
     let searchOrder = await orderModel.findById(orderId)
-    if (searchOrder.status == "cancelled") return res.status(400).send({ status: false, message: "this order has been cancelled, can't update anymore" })
+    if (searchOrder.status == "cancled") return res.status(400).send({ status: false, message: "this order has been cancelled, can't update anymore" })
     if (!searchOrder) return res.status(404).send({ status: false, message: "order not found" })
     if (searchOrder.userId != userId) return res.status(400).send({ status: false, message: "the order does not belongs to this user" })
 
